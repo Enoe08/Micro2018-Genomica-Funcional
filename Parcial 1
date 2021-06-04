@@ -1,1 +1,293 @@
+---
+title: "Tercer parcia"
+author: "Francisco Alfonso Perez Storms"
+date: "21/5/2021"
+output: html_document
+---
+```{r}
+library(igraph)
+library(igraphdata)
+library(msa)
+library(Biostrings)
+library(pheatmap)
+```
 
+
+#P1  (20%) A partir del archivo insulinas.fasta. Elabora un programa que:
+1. Lea el archivo
+2. Haga dos alineamientos múltiples por dos métodos distintos
+3. Construya una matriz de distancia por cada método de alineamiento.
+4. Construya dos redes pesadas a partir de cada matriz de distancia
+5.  Grafique las redes tomando en cuenta su peso
+6. Clusterizar la red con al menos tres métodos de agrupamiento.
+7. Discutir -como comentario dentro del código-  los cluster encontrados
+
+```{r}
+Insu <- readAAStringSet("c:/Users/gbsto/Documents/6to semestre/Genomica funcional/Insulinas.fasta") #con esta función se puede descargar el archivo en formato Biostring para que pueda manipularlo como una secuencia de AMINOACIDOS
+Insu # Para visualizar como se ve
+Ali_ClW<-msa(Insu) # De manera automatica se alinea por clustalw
+Ali_ClW
+Ali_ClO<-msa(Insu,"ClustalOmega") #Para alinear por ClustalOmega
+Ali_ClO
+```
+
+Intente hacer algo que no tiene sentido, pero queria pasarlo a un formato matriz, para luego pasarlo a formata red Lo que debo hacer es medir que tan diferente es cada una de ellas con cada una de las otras, ese valor seria la conexión y tendra un valor determinado. Repetir la metodologia para cada uno de los metodos de alineamiento.Ahora sí generar una matriz con esos valores, similar a el resto de ejercicios que hemos hecho, en especial como el ultimo ejercicio de este examen, porque igual es una matriz en donde el peso es importante.Despues seria hacer los metodos de clusterizaciómn y graficarlos, como lo realice en el ejercico 3.
+
+Esto fue lo que intente hacer sin sentido al inicio, porque de algun modo se cuales son los nodos, sin embargo
+no he establecido la conexión, lo cual explico arriba como deberia hacerlo.
+```{r}
+row.names(Insu)<- Insu[,1]
+amigos<-Insu [,-1]
+amigos <- as.matrix(Insu)
+View(Insu)
+Mat_dist <- as.matrix(get.adjacency(Ali_ClW)) 
+```
+
+
+#P2 (25%) Red PPI
+
+La red de interacción de proteínas de la levadura fue reportada en el artículo Von Mering, C., Krause, R., Snel, B., Cornell, M., Oliver, S. G., Fields, S., & Bork, P. (2002). Comparative assessment of large-scale data sets of protein-protein interactions. Nature, 417(6887 ), 399.
+
+Estos datos están en la librería igrpahdata precargados en los datos "yeast", es decir con el siguiente comando en R
+
+data("yeast") #
+cuando tecleas yeast , yeast es ya una red , es decir un objeto de tipo igraph (Por ejemplo plot(yeast) dibujará a la red, NO, NO, NO, LO HAGAS! Mejor, pon class(yeast) o yeast y verás que eso ya es una red.
+
+Elabora un programa COMENTADO en R que:
+1.Encuentre las diez proteínas más conectadas. La pregunta es cuáles, es decir, el nombre de la proteína.
+2. La gráfica de la distribución de conectividades.
+3. El diámetro de la red.
+4. El coeficiente de clusterización cada una de las 20 proteínas más conectadas.
+5. Encuentre las proteínas con coeficiente de clusterización de 1. Discute su significado.
+6. El porcentaje de conexiones respecto al total.
+7. El promedio de conectividades.
+8. Encuentre QUIÉNES son las 10 proteínas más importantes con al menos 3 distintos métodos
+9.Encuentre los caminos entre las proteínas más alejadas 
+10. Seleccione 1 proteína al azar y la la elimine de la red, que  calcule el promedio de las distancias después de quitar la proteína. Hacer esto 100 veces más y compare los promedios.
+11. Discute dentro del programa en R este último resultado, esta discusión debe incluir propiedades de la red, pero también suposiciones de por qué una red biológica está "construida" de esta manera. 
+
+```{r}
+data("yeast") 
+sort(degree(yeast,mode="in"),decreasing = T) #Me muestra cuantas conexiones van hacia a cada proteina y los acomoda en orden, de tal modo que las 10 primeras son las proteinas que tienen entradas o más conectadas en entradas
+```
+
+     1         2         3         4         5         6         7         8         9         10
+  YPR110C   YPL131W   YNL178W   YIL021W   YOL127W   YJL063C   YBR283C   YLR378C   YMR260C   YBR251W 
+     118       115       114       113       113       108       108       108       107       106 
+
+```{r}
+sort(degree(yeast,mode="out"),decreasing = T) ## Es lo mismo, pero este indica cuales son las proteinas que tienen más salidas
+```
+
+     1         2         3         4         5         6         7         8         9         10
+  YPR110C   YPL131W   YNL178W   YIL021W   YOL127W   YJL063C   YBR283C   YLR378C   YMR260C  YBR251W   
+    118       115       114       113       113       108       108       108       107       106
+
+```{r}
+yeast
+```
+
+No importa la dirección en esta red
+
+Se hace un histograma para poder ver la distribución de conectividad
+```{r}
+hist(degree(yeast), col="seagreen2")
+```
+
+tambien se puede ver asi la distribución
+```{r}
+plot(degree_distribution(yeast)) 
+```
+
+diametro
+```{r}
+diameter(yeast)
+```
+
+Obtengo el coeficiente de clusterización del nodo 1 más conectado y asi lo hago uno por uno hasta llegar al 20
+```{r}
+transitivity(yeast, vids = "YPR110C", type = "local") 
+transitivity(yeast, vids = "YPL131W", type = "local") #2
+transitivity(yeast, vids = "YNL178W", type = "local") #3
+transitivity(yeast, vids = "YIL021W", type = "local") #4
+transitivity(yeast, vids = "YOL127W", type = "local") #5
+transitivity(yeast, vids = "YJL063C", type = "local") #6
+transitivity(yeast, vids = "YBR283C", type = "local") #7
+transitivity(yeast, vids = "YLR378C", type = "local") #8
+transitivity(yeast, vids = "YMR260C", type = "local") #9
+transitivity(yeast, vids = "YBR251W", type = "local") #10
+transitivity(yeast, vids = "YGL123W", type = "local") #11
+transitivity(yeast, vids = "YNL284C", type = "local") #12
+transitivity(yeast, vids = "YGL103W", type = "local") #13
+transitivity(yeast, vids = "YOL040C", type = "local") #14
+transitivity(yeast, vids = "YGR034W", type = "local") #15
+transitivity(yeast, vids = "YDL191W", type = "local") #16
+transitivity(yeast, vids = "YDL136W", type = "local") #17
+transitivity(yeast, vids = "YGR220C", type = "local") #18
+transitivity(yeast, vids = "YNR037C", type = "local") #19
+transitivity(yeast, vids = "YOR063W", type = "local") #20
+```
+
+
+No puede haber alguna con un coeficiente de clusterización de 1, porque si asi fuera, significaria que todas estan conectadas con todas, porque indicaria que todas con las que esta realcionada, igual estan realcionadas entre sí
+
+obtengo el coeficiente de clusterización de la red, que al final de cuentas,se puede pasar al porcentaje de conexiones recorriendo dos digitos hacia la derecha, por lo tanto el porcentaje es de %46.86
+```{r}
+transitivity(yeast)
+```
+
+
+Con el histograma, se puede apreciar que el promedio esta al rededor del 10
+```{r}
+boxplot(degree(yeast), col="seagreen2") #La linea negra representa la mediana
+median(degree(yeast)) #Asi obtengo el valor real del promedio de conexiones
+```
+
+Un modo para encontrar a los nodos más importantes, es guiandonos por la proteina con una mayor cantidad de conexiones
+```{r}
+sort(degree(yeast,mode="in"),decreasing = T) 
+```
+
+
+Otro modo seria acomodandolos con base en la centralidad 
+```{r}
+sort(eccentricity(yeast, mode="in"),decreasing = F) 
+sort(eccentricity(yeast, mode="out"),decreasing = T) 
+```
+
+Otro podria usando las proteinas con una cantidad mayor de clusterización 
+
+El ultimo modo, podria ser con base en la proteina de mi interes
+
+No se como encontrar el camino entre las proteinas más alejadas, pero con base en el diametro, sé que hay 14 nodos entre los nodos más alejados, 15 tomando encuenta el nodo de destino
+```{r}
+diameter(yeast)
+```
+
+Para obtener la matriz de distancias
+```{r}
+distances(yeast, mode="out")
+```
+
+Sin embargo, no estoy seguro como obtener el promedio de las distancias en R, pero, me puedo guiar con el coeficiente de clusterización de la red, puesto que entre más chiquito sea, significa que la conectividad en la red ha disminiudo, y entre más cercano a 1, indica que esta cada vez más unida
+Igual nos podemos guiar con el diametro, puesto que, entre más grande se haga, significa que los nodos retirados a generado que se alejen mas, aunque puede, supongo que pueden hacer ruido los inf. 
+
+Mensaje si no puedo terminar la función para quitar nodos al azar
+En general, no veremos una afectación, puesto que al ser ataques azarosos veremos que los nodos que se afectan suelen tener pocas conexiones, entonces, igualno hay una gran afectacción, y los nodos muy conectados, que son los importantes, los concentradores de la red, muy seguramente se mantendran sin problemas viables.
+
+
+# P3 (10% sí, lo se, ???? suman más de 50 % , es decir hay un 5% extra)  Red de gustos
+A partir de los gustos de series del grupo -archivo anexo-  elabora un programa en R que
+1. Constuya una red pesada de alumnxs
+2. Encuentre quiénes son los grupos de estudiantes con gustos similares
+3. Calcule la distancias entre todos los alumnxs y grafique un heatmap
+4. Grafique la red con tres diferentes layouts
+5. Grafique la red con los nodos proporcionales a tres distintos métodos de centralidad.
+
+```{r}
+library(readr) # es para poder descargar el archivo en formato .csv
+Red_de_co_gustos_Hoja_1_2 <- read.csv("6to semestre/Genomica funcional/Red de co-gustos - Hoja 1-2.csv") ##Cuando es con read_csv no me deja poner nombre
+View(Red_de_co_gustos_Hoja_1_2) #para ver como se descargo
+rownames(Red_de_co_gustos_Hoja_1_2) <- Red_de_co_gustos_Hoja_1_2[,1] # se indica que la primer linea son los nombres correspondientes de cada columna
+View(Red_de_co_gustos_Hoja_1_2) #para visualizar
+Red_de_co_gustos_Hoja_1_2<-Red_de_co_gustos_Hoja_1_2 [,-1] #Retirar la primer columna, que ya no es importante, porque ya se asignaron los nombres
+Red_gustos <- as.matrix (Red_de_co_gustos_Hoja_1_2) #hacerlo en formato matriz
+Red_gustos_inver <-t(Red_gustos) #hacerla transversal, y que los principales sean los alumnos y no las series
+View(Red_gustos_inver) #visualizar si funciono
+```
+
+
+Ahora genero una matriz de correlación, con 3 metodos diferentes
+```{r}
+cor(Red_gustos_inver, method = "pearson")-> Cor_Per_COM_Gus
+cor(Red_gustos_inver, method = "kendall")-> Cor_ken_COM_Gus
+cor(Red_gustos_inver, method = "spearman")-> Cor_Spe_COM_Gus
+```
+
+Ahora vamos a estandarizar todo de 0 a 1
+```{r}
+Cor_Per_COM_Gus<- (Cor_Per_COM_Gus + 1)/2
+Cor_ken_COM_Gus<- (Cor_Per_COM_Gus + 1)/2
+Cor_Spe_COM_Gus<- (Cor_Per_COM_Gus + 1)/2
+```
+
+```{r}
+View(Cor_ken_COM_Gus) #ay que quitar los .5 de la diagonal
+diag(Cor_Per_COM_Gus)<-0
+diag(Cor_ken_COM_Gus)<-0
+diag(Cor_Spe_COM_Gus)<-0
+```
+
+Visualizar las interacciones y los pesos de la misma
+```{r}
+View(Cor_Spe_COM_Gus) #Ya quedo
+```
+
+Genero un hetmap
+```{r}
+pheatmap(Cor_Per_COM_Gus)
+pheatmap(Cor_ken_COM_Gus)
+pheatmap(Cor_Spe_COM_Gus)
+heatmap(Cor_Per_COM_Gus, Rowv=NA, Colv="Rowv")  # genero un hetmap, y asi podremos ver que nodos se relacionan con quien, con las otras variables eligo que con base el color se indique que nodos estan más conectados
+heatmap(Cor_ken_COM_Gus, Rowv=NA, Colv="Rowv") 
+heatmap(Cor_Spe_COM_Gus, Rowv=NA, Colv="Rowv")
+```
+
+Hacemos que se haga en formato red, y no es importante la dirección, pero sí que se mantengan los pesos
+```{r}
+veamos <-graph_from_adjacency_matrix(Cor_Per_COM_Gus, mode = "undirected", weighted = T)
+plot (veamos,vertex.label.dist=0.1, edge.arrow.size=0.1) #se puede modificar el tamaño de las lineas y las flechas, aunque ese ultimo no importa, porque no importa la dirección
+```
+
+Podemos ver la distancia entre los nodos
+```{r}
+distances(veamos)
+```
+
+Para hacer cluster graficos desde R, tomando distintas caracteristicas
+```{r}
+cluster_infomap(veamos)->ar1 #sin dirección
+cluster_leading_eigen(veamos)->ar2 #sin dirección
+cluster_label_prop(veamos)-> ar3 # sin dirección
+cluster_spinglass(veamos)->ar4
+cluster_edge_betweenness(veamos)->ar5 #sin dirección
+cluster_fast_greedy(veamos)->ar7 #sin dirección 
+cluster_louvain(veamos)->ar8 #sin dirección 
+cluster_optimal(veamos)->ar9
+cluster_walktrap(veamos)->ar10
+clusters(veamos)->ar11 
+```
+
+
+
+Ahora vamos a plotear con respecto a cada cluster la red, y se modifica el tamaño de las conexiones y de las flechas, aunque ese ultimo no importa, porque es no dirigida
+```{r}
+plot (ar1, veamos,
+      vertex.label.dist=0.1, edge.arrow.size=0.1)
+plot (ar2, veamos,
+      vertex.label.dist=0.1, edge.arrow.size=0.1)
+plot (ar3, veamos,
+      vertex.label.dist=0.1, edge.arrow.size=0.1)
+plot (ar4, veamos,
+      vertex.label.dist=0.1, edge.arrow.size=0.1)
+plot (ar5, veamos,
+      vertex.label.dist=0.1, edge.arrow.size=0.1)
+plot (ar7, veamos,
+      vertex.label.dist=0.1, edge.arrow.size=0.1) 
+plot (ar8, veamos,
+      vertex.label.dist=0.1, edge.arrow.size=0.1) 
+plot (ar9, veamos,
+      vertex.label.dist=0.1, edge.arrow.size=0.1)
+plot (ar10, veamos,
+      vertex.label.dist=0.1, edge.arrow.size=0.1)
+plot (ar11, veamos,
+      vertex.label.dist=0.1, edge.arrow.size=0.1) 
+```
+
+De esta manera se puede obtener el modo segun la cantidad de entradas aunque no es significativo, porque practicamente todos se conectan con todos.
+```{r}
+plot(veamos, layout=layout_nicely, vertex.size=degree(veamos, V(veamos), "in")*2+6,
+     vertex.label.dist=0.1, edge.arrow.size=0.1)
+```
+
+Aunque el ejercicio comento que habia que tomar en cuenta los pesos, supongo que debi haber estandarizado los valores para generar menos conexiones, aunque de ese modo, dejaria de importar el peso, puesto que solo estarian conectados los que entren dentro del rango establecido
