@@ -1,0 +1,287 @@
+---
+title: "Tercer parcia"
+author: "Francisco Alfonso Perez Storms"
+date: "21/5/2021"
+output: html_document
+---
+# P1 (10%)
+1. La tabla expresion_normalizada.txt (anexa a esta entrada) tiene identificadores de sondas y valores de expresión para un experimento de microarreglos en donde se quiere  comparar una condición A vs WT. El contraste realizado es A-WT. Escribe un programa en R que:
+  
+1) Lea la tabla.
+2) Haga un boxplot de expresión.
+3) Grafique un PCA.
+4) Encuentre las sondas que se sobre expresan y sub expresan.
+5) Cuente cuántas sondas se sobre expresan y cuántas se sub expresan.
+6) Genera una figura de volcán manualmente, que incluya todas las sondas.
+7) Discute tus resultados.
+
+```{r}
+library(affy)
+library(pvclust)
+library(vsn)
+```
+
+```{r}
+`expr_normalizada.(1)` <- read.delim("~/6to semestre/Genomica funcional/Segundo parcial/expr_normalizada (1).txt", header=FALSE)
+View(`expr_normalizada.(1)`)
+prued <-`expr_normalizada.(1)`
+rownames(prued) <- prued[,1]
+colnames(prued) <- prued[1,]
+prued<-prued [-1,-1]
+View(prued)
+prueb1 <- solve(prued)
+View(prueb1)
+boxplot(prued1,col=rainbow(6))
+```
+
+ Me bloquie y ya casi llevo 1 hr. Tengo entendido que hay que seguir los pasos de la pagina de langebio 
+En la parte de análisis de microarreglos Affymetrix, pero como no tengo documentos CEL me he bloqueado en como debo de manipular el archivo para poder realizar los analisis.  sube el archivo de texto y decidi tratarlo como una matriz, asigno el nomnbre de columnas y de nombre y elimine esas columnas, para que no saliera error, porque no hay numeros, pero aun asi no me quiere  correr el boxplot, y ya intenter voltear la matriz hacer la trasnversa si no me equivoco pero con t o con solve no me la quiere voltear,e igual sigue sin correrme.  para hacer el PCA, deberia usar printcomp(exprs(prueb)) para hacer enconctrar las que más se sobreexprsan, deberia obtener el P. value y asi saber cuales son significativamente su expresión, sé que asi pueden salir más que se sobreexpresan, pero todos los que tienen un p. value significativo indica que igual estan sobreexprsados, pero aparte que es significativa su expresión depues para hacer el volcano se hace volcanoplot(prueb) # Sé que el documento ya no se deberia llamar prueba, correrlo la base de datos en donde se obtuvo el p.value
+
+
+# 2. P2 (15%)
+Elabora un programa completo de la práctica. Siempre puedes usar las versiones más ligeras de los archivos que se utilizan en la práctica. En particular resuelve las preguntas contenidas en la práctica. Discute tus resultados.
+http://datos.langebio.cinvestav.mx/~cei/cursos/R/sesion08adv2.html
+
+```{r}
+BiocManager::install("rtracklayer")
+BiocManager::install("GenomicRanges")
+BiocManager::install("GenomeInfoDb")
+```
+
+```{r}
+library(GenomeInfoDb)
+library(GenomicRanges)
+library(rtracklayer)
+```
+
+```{r}
+human <- import("Homo_sapiens_exons_sel_e70.gtf", asRangedData = F)
+```
+
+Lo intente con los datos no pesados pero me dice que no se puede encontrar la conexión 
+Error in readChar(con, 5L, useBytes = TRUE) : 
+no se puede abrir la conexión
+Además: Warning message:
+  In readChar(con, 5L, useBytes = TRUE) :
+  cannot open compressed file 'human.Rdata', probable reason 'No such file or directory'
+
+Depues lo intente con los datos pesados e igual me dice que no se puede abrir la conexíon 
+ Error in open.connection(con, open) : no se puede abrir la conexión
+ Además: Warning message:
+ In open.connection(con, open) :
+ no fue posible abrir el archivo 'Homo_sapiens_exons_sel_e70.gtf': No such file or directory
+ 
+```{r}
+base_dir<- "~/6to semestre/Genomica funcional/Segundo parcial/"
+load("human.Rdata")
+```
+
+```{r}
+human
+```
+
+copie y peque el resto de funciones porque pense que sí iba a poder correr el archivo y luego para probarlas
+En general por lo que entiendo te selecciona la columna de la base de datos que indiques
+
+```{r}
+seqnames(human)
+ranges(human)
+strand(human)
+mcols(human)
+```
+
+
+Asi le pides que de la columna mcols te seleccione gene_biotype en forma de tabla
+```{r}
+table(mcols(human)$gene_biotype)
+```
+De esta manera se pueden seleccionar varios renglones de la columna mcols, para asi tambien arrojar los datos dentro de c()
+```{r}
+mcols(human) <- mcols(human)[,c("source","gene_id","gene_name","gene_biotype")]
+```
+y luego como se guardo en un vector, ahora la idea es que te arroje la tabla 
+
+```{r}
+mcols(human)
+```
+Cómo le harían para quedarse exclusivamente con las anotaciones de "miRNA"? y solamente aquellas anotaciones de la cadena "-"?
+primero intentaria usar miRNA (human) luego, veria que opciones me da al hacer table(miRNA(human$)) en el $ oprimo tabulador, si me aparece la opción para quedarme con las cadenas - o algo por el estilo, ya quedo. Si no. como no estoy seguro que es eso de la cadena "-", me es un poco dificl saber que hacer, pero creo que deberia hacer un especie de rango, para asi poder seleccionar esas columnas de miRNA con la cadena "-", porque si ahi hay numeros, seria quedarse con los que no tienen numero o algo asi, como los que tenga -1 o -0 o algo asi.
+
+
+# 3. P3 (20%)
+
+1) Elabora un programa completo para analizar los datos usando sleuth para analizar los datos de abundancias generados por Kallisto que están ya alojados en el classroom (El archivo que usamos para esta tarea) . A partir de un análisis de boxplots o PCA trata de determinar cuáles de las 10 muestras son experimentales y cuáles control. Trabaja con 3 y 3 (3 controles vs tres experimentales)
+2) Genera un análisis de expresión diferencial.
+3) Genera una tabla con los genes diferencialmente expresados y genera, con cualquier herramienta, un análisis de GO para estso genes. Discute tu rersultado y envía tu gráfica con dicho análisis
+
+No sé como hacer con los datos un PCA. Al igual que en el primer ejercicio del parcial, como los datos no son archivos CEA, estoy confundido en como deberia hacerlo. Parece que ya sé en que se iran mis vacaciones...
+
+Peque tal cual el scrip que entregue de tarea. e hice uso de las 12 muestras, para ver si asi me arroja algo
+
+11:55 se termino de analizar todo. No alcance a entrar a genemania para correr la red con los genes de importancia
+
+```{r}
+library("sleuth") #Cargamos la libreria 
+```
+
+
+Esta función permite mapear, a partir de la base de datos de
+```{r}
+tx2gene <- function(){
+```
+
+Con la función de abajo metida al objeto mart, indicamos a donde nos queremos conectar, y a que base de datos queremos ingresar, para nuestro caso sera a la base de datos de homo sapiens
+```{r}
+mart <- biomaRt::useMart(biomart = "ensembl", dataset = "hsapiens_gene_ensembl")
+```
+ahora debemos indicar que es lo queremos extraer de esa base de datos, en este caso nos quedamos con el identificador del transcripto, el identificador del gen y el nombre externo 
+```{r}
+t2g <- biomaRt::getBM(attributes = c("ensembl_transcript_id", "ensembl_gene_id",
+                                     "external_gene_name"), mart = mart) 
+```
+
+ahora renombramos los conceptos, de tal forma que cuando se genere el objeto, venga los nombres de las columnas más cortos
+```{r}
+t2g <- dplyr::rename(t2g, target_id = "ensembl_transcript_id",
+                     ens_gene = "ensembl_gene_id", ext_gene = "external_gene_name")
+return(t2g) # para que despues de que se ejecute la función, nos regrese la tabla que se genero
+}  
+```
+ 
+De esta manera, lo que hacemos es que la función tenga una sintaxis a modo de objeto
+```{r}
+t2g <- tx2gene()
+```
+De esta manera nos metemos a la carpeta en donde tenemos nuestros archivos
+```{r}
+base_dir<-"~/6to semestre/Genomica funcional/Archivo/"
+```
+hacemos un objeto, en donde se incluyen los nombres de las carpetar que vamos a utilizar
+```{r}
+samples <- paste0("sample", c("1","2","3",
+                              "4", "5", "6", "7", "8", "9", "10", "11", "12"))
+```
+
+```{r}
+kal_dirs <- sapply(samples, function(id) file.path(base_dir, id)) 
+
+```
+Esto no lo entendi, aunqueentiendo que tiene que ver con la manera en que se leeran los archivos que tengo en mis carpetas
+
+De esta forma selecciona dos grupos experimentales, dos controles y dos L1, que corresponden al orden en que se pusieron las carpetas anteriores, los samples.
+```{r}
+s2c <- data.frame(path=kal_dirs, sample=samples, muestras = c("CTRL","CTRL", "CTR","CTRL","CTRL", "CTR",
+                                                              "L1", "L1", "L1", "L1", "L1", "L1"
+), stringsAsFactors=FALSE)
+```
+
+
+Aqui es donde se realiza el analisis final como tal, donde se toman las muestras como las marcamos se pide el mapeo, con base en la función que se coloco arriba, se asociara con base a la  distribución de genes. Un detective es un grupo de kallistos. Con sleuth_prep se pueden usar los resultados obtenidos en kallisto, y operarlos, considerando las covariables la profundidad de secuenciación, la variación técnica y biológica. tarjet_mapping ayuda a que laws columnas que tienen letras se lean como caracteres. y con extra_boostrap_ summary se pueden resumir estadisticas para los recuentos estimados.
+```{r}
+so <- sleuth_prep(s2c, ~muestras, target_mapping = t2g,extra_bootstrap_summary = TRUE)
+```
+
+Con sleuth_fit se estima la varianza técnica a partir de los boostraps, la varianza biológica y se estima la contracción.
+```{r}
+so <- sleuth_fit(so)
+```
+sleuth_wt calcula la prueba de Wald en un coeficiente 'beta' específico en cada transcripción (NO SÉ QUE ES ESTO).
+```{r}
+so <- sleuth_wt(so, which_beta="muestrasL1")   
+```
+
+Para poder visualizarlo de una manera agradable. Salimos oprimiendo ESC en R
+```{r}
+sleuth_live(so)
+```
+
+Descargo la tabla que se puede obtener al abrir sleuth_live
+```{r}
+setwd("~/6to semestre/Genomica funcional/Segundo parcial/")
+```
+
+```{r}
+resultados<-read.table("test_table_1.csv",sep=",",
+                       header=TRUE) # hacemos una tabla en donde se agregaran los resultados
+significativos<-which(resultados$qval<0.05) #se agregaran los que se consideren como significativos, donde el p valor sea menos a .05
+significativos<-resultados[significativos,]
+upregulated<-which(significativos$b>0) # De los cuales se "marcaran" con que tienen una baja en la expresión, si el logforchange es menor a cero
+upregulated<-significativos[upregulated,]
+downregulated<-which(significativos$b<0) # y si el logforchange es mayor a cero se guardara como los que tienen una alza en su expresión
+downregulated<-significativos[downregulated,]
+```
+
+Se separa en dos tablas por aparte, una donde esten los genes significativos con una menor expresión y otra en donde estan los genes significativos con una mayor expresión, y la tabla se guarda en donde indico que se me guarde
+```{r}
+write.table(upregulated,file="~/6to semestre/Genomica funcional/Segundo parcial/Upregulated_P2.txt",sep="\t")
+write.table(downregulated,file="~/6to semestre/Genomica funcional/Segundo parcial/Downregulated_P2.txt",sep="\t")
+```
+
+De esta manera me saldra el nombre externo que esta en la tabla en donde estan los genes con una baja expresión y que es significativa. Que si nos guiamos por el  volcano, serian los que estan en el cuadrante izquierdo superior.
+```{r}
+er <-upregulated$ext_gene 
+```
+
+```{r}
+er1 <-downregulated$ext_gene # En el primero me sale cero caracteres y en este segundo me arroja NULL
+View(er)
+View(er1)
+er
+er1
+```
+Tiene logica que los primeros 6 fueran los de una condición y los otros 6 de otra condición, supongo que para no tardar menos, solo debi elegir el 1-3 y del 7-9. que gran error
+
+
+Debo seleccionar los genes colocarlos en genemania.org/search  para homo_sapiens, como me salieron 473 subexpresados y 612 sobreexpresados de manera significativa. por el momento no tengo tiempo para poder pegar y ver la grafica
+
+Ahora haremos un documento de texto para solo tener los nombres, y que cuando habramos el documento de texto tener la facildiad de seleccionar todo y ponerlo en genmania
+```{r}
+write.table(er,file="~/6to semestre/Genomica funcional/Segundo parcial/Upregulated_P2_imp_ext_gene.txt",sep="\t")
+write.table(er1,file="~/6to semestre/Genomica funcional/Segundo parcial/Downregulated_P2_imp_ext_gene.txt",sep="\t")
+```
+
+La idea es buena, pero por alguna razon, tardo mucho en generarme el archivo...
+Ya despues de obtenerlo, obtuve lo que queria, sin embargo, aun deberia modificarlo, para solo quedarme con los nombres de los genes, sin la numeración y quizas tambien hay que quitar las comillas, y no creo tener tiempo para ello, y entregar el examen. me quedan 5 min. 
+
+# 4. P4 (5%)
+
+Genera un programa en R que modele lo siguiente: Se tienen tres genes, A,B, y C.
+El gen B está regulado negativamente por A, el A, negativamente por C y el C, negativamente por B.
+
+1. ¿Cuántos atractores tiene esta red? Tiene dos atractores ciclicos 
+2. ¿Cual es el estado más probable? el más probable es el atractor ciclico con 6 estados
+3. ¿Hay atractores cíclicos? Sí, de hecho los dos que hay son ciclicos
+4. Dibuja los atractores.
+No recuerdo la función para generar los pllot de atracción. estuve buscandolo y no encontre la función. Solo se me ocurrio hacer algo con getPathToAttractor, pero en ese caso es mucho mejor "dibujo" de los atractores lo que obtengo con plotAttractors(atract)
+5. Dibuja todos loas atractores juntos
+
+Cargamos las librerias
+```{r}
+library(igraph)
+library(BoolNet)
+```
+
+Nos movemos a nuestra carpeta donde queremos guardar
+```{r}
+setwd("c:/Users/gbsto/Documents/6to semestre/Genomica funcional/Segundo parcial/")
+sink("P2_ejercicio_4_.txt") #Asi se llamara nuestro documento
+cat("targets, factors\n") #Generamos las reglas para poder hacer el grafico booleano
+cat("A, !C\n")
+cat("B, !A\n")
+cat("C, !B\n")
+sink()
+P2_ejercicio_4_ <-loadNetwork ("P2_ejercicio_4_.txt") #Usamos el archivo que acabamos de crear
+plotNetworkWiring(P2_ejercicio_4_) #hacemos el plot para ver como se ve la red
+atract <- getAttractors(P2_ejercicio_4_) #Le pedimos que nos seleccione los atractores, y los ponga en un archivo
+plotAttractors(atract) #hacemos plot de los atractores con plotAttractors
+```
+
+```{r}
+mert1 <- getPathToAttractor(P2_ejercicio_4_, c(0,0,0), includeAttractorStates = c("all"))
+print(mert1)
+```
+
+```{r}
+mert2 <- getPathToAttractor(P2_ejercicio_4_, c(1,0,0), includeAttractorStates = c("all"))
+print(mert2)
+```
