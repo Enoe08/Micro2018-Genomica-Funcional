@@ -1,0 +1,453 @@
+---
+title: "Tercer parcia"
+author: "Francisco Alfonso Perez Storms"
+date: "21/5/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+#####1. Genera un programa en R que  a partir de los siguientes datos calcule para cada ecosistema (eco1,eco2,eco3) : la riqueza , diversidad alfa  con al menos tres subÃ­ndices, diversidad beta  con al menos un Ã­ndice (https://stat.ethz.ch/R-manual/R-devel/library/base/html/sets.html) y una gÅafica de la abundancia ordenada de mayor a menor. No puedes usar librerÃ­as especializadas en ningÃºn caso.
+
+
+No entiendo para que usare este objeto, inlcuso ya intente removiendo el texto con mi numero y colocandolo entre comillas, pero no corre. 
+Despues de ver la correcciÃ³n, ya me corrio, pero, sigo sin cachar para que funciona.
+```{r}
+a<-343825
+set.seed(a)
+```
+
+```{r}
+eco1<-sample(1:20, 200, replace=TRUE)
+eco2<-sample(1:400, 2000, replace=TRUE)
+eco3<-sample(1:100, 10000, replace=TRUE)
+```
+
+#Indide de Simpson
+Para obtener el indice de diversidad de simpson. (Con base en el proyecto final de 5to Sem)
+
+Primero debemos pasar la base de datos a formato de data.frame
+```{r}
+eco1 <- as.data.frame(eco1)
+```
+
+Hay que determinar los valores que se usan para la formula. N es la representaciÃ³n de el total de individuos, n es la representaciÃ³n del renglon o para este caso la densidad de la especie que corresponde a esa renglon, y por ultimo D es un vector vacio en donde se iran agregan los valores obtenidos con la siguiente formula...
+```{r}
+N <- sum(eco1[ , 1])
+    n <- 1
+    D <- c()
+```
+
+Hacemos un ciclo for, en el que indicamos que n corresponde al numero del renglon y que sera tan grande como la cantidad de renglones tenga la base de datos. Despues con el objeto densidadSpn indicamos que ese valor correspondera a la densidad de individuos que corresponden para ese renglon, ya que n solo nos dice en que renglon estar, de esta manera indicamos que valor tomar dentro ese renglon (segun la columan que indiquemos). 
+En la parte de aux, es para obtener el resultado de cada una de las especies cuando se divide la densidad de una especie entre el total de individuos. El valor obtenido se debe elevar al cubo o multiplicar por si mismo, y por ultimo hacemos que el valor obtenido se guarde en el vector vacio D, gracias a la n indicamos que lo haga en el primer renglon. Al final con la ultima linea de codigo hacemos que n valga un numero mÃ¡s, y despues se repetira el ciclo hasta que n llegue a su maximo.
+```{r}
+    for (n in 1:length(eco1[ , 1])) {
+      densidadSpn <- eco1[ , 1]
+      aux <- densidadSpn[n]/N
+      d <- aux*aux
+      D[n] <- d
+      n <- n + 1
+    }
+```
+
+Por ultimo ya solo queda sumar los valores arrojados al vector D y finalmente conocer el valor del indice de simpson
+```{r}
+    D <- sum(D)
+    D
+```
+
+Con round se puede hacer que los valores no tengan mÃ¡s de 4 digitos, para limitar el valor 
+     D <- round(D, digits = 4)
+
+Finalemente hacemos una funciÃ³n con if, para que de esta forma nos indique con base el valor de D, que es lo que significa, si es que hay una alta o baja diversidad. El ultimo else es en caso de que los datos por alguna razon no cumplan los parametros que se determinaron y por lo tanto indicarle al usuario que hay algo mal en la base de datos, ya sea que no esten bien acomodados los datos o algo por el estilo
+```{r}
+    if(D == 0.0000) {
+      print(paste(" El indice de diversidad de Simpson (D) de tus datos es : ",
+                  D, "."))
+      print(" Existe una diversidad infinita dentro de tu muestra.")
+    } else if (D == 1.0000) {
+      print(paste(" El indice de diversidad de Simpson (D) de tus datos es : ",
+                  D, "."))
+      print(" No hay diversidad dentro de tu muestra.")
+    } else if (0 < D |  D < 0.5000) {
+      print(paste(" El indice de diversidad de Simpson (D) de tus datos es : ",
+                  D, "."))
+      print(" Existe una alta diversidad dentro de tu muestra.")
+    } else if (0.5 < D | D < 1.0000) {
+      print(paste(" El indice de diversidad de Simpson (D) de tus datos es : ",
+                  D, "."))
+      print(" Existe una baja diversidad dentro de tu muestra.")
+    } else {
+      print("(ERROR 03): No puede calcularse el indice de Simpson.  Datos incorrectos .")
+    }
+```
+
+
+Ahora repetiremos lo mismo para eco2 y eco3
+```{r}
+eco2 <- as.data.frame(eco2)
+N <- sum(eco2[ , 1])
+    n <- 1
+    Da <- c()
+     for (n in 1:length(eco2[ , 1])) {
+      densidadSpn <- eco2[ , 1]
+      aux <- densidadSpn[n]/N
+      d <- aux*aux
+      Da[n] <- d
+      n <- n + 1
+     }  
+       Da <- sum(Da)
+       
+      if(Da == 0.0000) {
+      print(paste(" El indice de diversidad de Simpson (Da) de tus datos es : ",
+                  Da, "."))
+      print(" Existe una diversidad infinita dentro de tu muestra.")
+    } else if (Da == 1.0000) {
+      print(paste(" El indice de diversidad de Simpson (Da) de tus datos es : ",
+                  Da, "."))
+      print(" No hay diversidad dentro de tu muestra.")
+    } else if (0 < Da |  Da < 0.5000) {
+      print(paste(" El indice de diversidad de Simpson (Da) de tus datos es : ",
+                  Da, "."))
+      print(" Existe una alta diversidad dentro de tu muestra.")
+    } else if (0.5 < Da | Da < 1.0000) {
+      print(paste(" El indice de diversidad de Simpson (Da) de tus datos es : ",
+                  Da, "."))
+      print(" Existe una baja diversidad dentro de tu muestra.")
+    } else {
+      print("(ERROR 03): No puede calcularse el indice de Simpson.  Datos incorrectos .")
+    }
+       
+  eco3 <- as.data.frame(eco3)
+N <- sum(eco3[ , 1])
+    n <- 1
+    De <- c()
+     for (n in 1:length(eco3[ , 1])) {
+      densidadSpn <- eco3[ , 1]
+      aux <- densidadSpn[n]/N
+      d <- aux*aux
+      De[n] <- d
+      n <- n + 1
+     }  
+       De <- sum(De)
+       
+        if(De == 0.0000) {
+      print(paste(" El indice de diversidad de Simpson (De) de tus datos es : ",
+                  De, "."))
+      print(" Existe una diversidad infinita dentro de tu muestra.")
+    } else if (De == 1.0000) {
+      print(paste(" El indice de diversidad de Simpson (De) de tus datos es : ",
+                  De, "."))
+      print(" No hay diversidad dentro de tu muestra.")
+    } else if (0 < De |  De < 0.5000) {
+      print(paste(" El indice de diversidad de Simpson (De) de tus datos es : ",
+                  De, "."))
+      print(" Existe una alta diversidad dentro de tu muestra.")
+    } else if (0.5 < De | De < 1.0000) {
+      print(paste(" El indice de diversidad de Simpson (De) de tus datos es : ",
+                  De, "."))
+      print(" Existe una baja diversidad dentro de tu muestra.")
+    } else {
+      print("(ERROR 03): No puede calcularse el indice de Simpson.  Datos incorrectos .")
+    }
+```
+D es de eco1 ; Da de eco2 ; y De de eco3
+```{r}
+D
+Da
+De
+```
+
+#Indide de Shannon
+
+Primero habria que pasar los objetos tipo data_frame, pero como ya lo hicimos, ya no es necesario
+    d_sha <- as.data.frame(d_sha)
+
+Hay que determinar que tendran los objetos que usaremos para dar lugar a los valores
+S es equivalente al numero de especies en la base de datos, por eso equivale a la longitud de la base 1
+N igual corresponde a la sumatoria de de indivituos
+i equivale a la columna en la que uno desea estar, aunque eso se definira con el ciclo for
+H es el vector vacio en el que se iran almacenando los resultados de cada ciclo que se complete
+```{r}
+  S <- length(eco1[ , 1])
+    N <- sum(eco1[ , 1])
+    i <- 1
+    H <- c()
+```
+
+Ahora formulamos el ciclo for, el cual indica que i ira de 1 al ultimo numero correspondiente al renglon u ultima especie. 
+El objeto densidadShn es relacionado a la densidad del renglon en cuestion, el cual se determinara por i y por ello mismo ira avanzando entre cada ciclo
+pi sera el valor obtenido cuando divides la cantidad de individuos de una especie entre todos los individuos. 
+Despues h nos determina el valor que le corresponde a esa especie multiplicando pi por el logaritmo base 2 de pi. De esta manera igual se esta estandarizando el valor final que obtendremos.
+Depues el valor se almacena en nuestro vector vacio en el renglon correspondeinte al valor de i
+Y por ultimo i aumenta una unidad para de esta manera en la sigueinte vuelta del ciclo saquemos el valor de la sigueinte especie en cuestiÃ³n
+```{r}
+ for (i in 1:length(eco1[ , 1])) {
+      densidadShn <- eco1[ , 1]
+      pi <- densidadShn[i]/N
+      h <- pi*log2(pi)
+      H[i] <- h
+      i <- i + 1
+    }
+```
+
+Ahora vamos a hacer la sumatoria del vector H, y como el valor se da en negativo el resultado se multiplica por menos 1. Y finalmente nos da el valor
+```{r}
+    H <- sum(H)*(-1)
+    H
+```
+Con round hacemos que se limite el numero de puntos decimales, a no mÃ¡s de 4
+ H <- round(H, digits = 4)
+
+Finalemente hacemos una funciÃ³n con if, para que de esta forma nos indique con base el valor de H, que es lo que significa, si es que hay una alta o baja diversidad. El ultimo else es en caso de que los datos por alguna razon no cumplan los parametros que se determinaron y por lo tanto indicarle al usuario que hay algo mal en la base de datos, ya sea que no esten bien acomodados los datos o algo por el estilo.
+```{r}
+   if(H == 0.0000) {
+      print(paste(" El indice de diversidad de Shannon (H') de tus datos es : ",
+                  H, "."))
+      print(" Tu muestra contiene solamente una especie.")
+    } else if (H <= 2.000) {
+      print(paste(" El indice de diversidad de Shannon (H') de tus datos es : ",
+                  H, "."))
+      print(" Existe una baja diversidad dentro de tu muestra.")
+    } else if (H >= 3.0000) {
+      print(paste(" El indice de diversidad de Shannon (H') de tus datos es : ",
+                  H, "."))
+      print(" Existe una alta diversidad dentro de tu muestra.")
+    } else {
+      print("(ERROR 04): No puede calcularse el indice de Shannon.  Datos incorrectos .")
+    }
+```
+   
+Ahora repetimos el mismo procedimiento para eco2 y eco3    
+```{r}
+ S <- length(eco2[ , 1])
+    N <- sum(eco2[ , 1])
+    i <- 1
+    Ha <- c()
+ for (i in 1:length(eco2[ , 1])) {
+      densidadShn <- eco2[ , 1]
+      pi <- densidadShn[i]/N
+      h <- pi*log2(pi)
+      Ha[i] <- h
+      i <- i + 1
+ }
+    Ha <- sum(Ha)*(-1)
+  if(Ha == 0.0000) {
+      print(paste(" El indice de diversidad de Shannon (Ha') de tus datos es : ",
+                  Ha, "."))
+      print(" Tu muestra contiene solamente una especie.")
+    } else if (Ha <= 2.000) {
+      print(paste(" El indice de diversidad de Shannon (Ha') de tus datos es : ",
+                  Ha, "."))
+      print(" Existe una baja diversidad dentro de tu muestra.")
+    } else if (Ha >= 3.0000) {
+      print(paste(" El indice de diversidad de Shannon (Ha') de tus datos es : ",
+                  Ha, "."))
+      print(" Existe una alta diversidad dentro de tu muestra.")
+    } else {
+      print("(ERROR 04): No puede calcularse el indice de Shannon.  Datos incorrectos .")
+    }
+    
+ S <- length(eco3[ , 1])
+    N <- sum(eco3[ , 1])
+    i <- 1
+    He <- c()
+ for (i in 1:length(eco3[ , 1])) {
+      densidadShn <- eco3[ , 1]
+      pi <- densidadShn[i]/N
+      h <- pi*log2(pi)
+      He[i] <- h
+      i <- i + 1
+ }
+    He <- sum(He)*(-1)
+  if(He == 0.0000) {
+      print(paste(" El indice de diversidad de Shannon (He') de tus datos es : ",
+                  He, "."))
+      print(" Tu muestra contiene solamente una especie.")
+    } else if (He <= 2.000) {
+      print(paste(" El indice de diversidad de Shannon (He') de tus datos es : ",
+                  He, "."))
+      print(" Existe una baja diversidad dentro de tu muestra.")
+    } else if (He >= 3.0000) {
+      print(paste(" El indice de diversidad de Shannon (He') de tus datos es : ",
+                  He, "."))
+      print(" Existe una alta diversidad dentro de tu muestra.")
+    } else {
+      print("(ERROR 04): No puede calcularse el indice de Shannon.  Datos incorrectos .")
+    }
+```
+
+H es de eco1; Ha de eco2; y He de eco3
+```{r}
+H
+Ha
+He
+```
+
+#Indide de Margalef
+
+Primero habria que estandarizar la base de datos a un formato de data-frame
+    d_marg <- as.data.frame(d_marg)
+
+Ahora vamos a determinar los objetos para poder obtener el indice de margalef
+S corresponde a la cantidad de especies en la muestra. N es relacionado a todos los individuos obtenidos
+```{r}
+    S <- length(eco1[ , 1])
+    N <- sum(eco1[ , 1])
+```
+
+Esta es un poco mÃ¡s sencilla a las otra, porque no nos demanda hacer sumatoria o algo por el estilo. 
+Entonces DMg es la cantidad de especies menos una entre el logaritmo del total de individuos
+```{r}
+    DMg <- (S - 1)/log(N)
+```
+Si queremos acortar a solo cuatro digitos tendriamos que usar
+    DMg <- round(DMg, digits = 4)
+
+Ahora hacemos la funciÃ³n de if, para asi dar a conocer si hay una alta cantidad de individuos o no, practicamente esta formula es mÃ¡s para determinar si hay dominancia de alguna especie en la muestra o no. De igual modo la ultima columana es solo una especie de candado por si los valores no corresponden a lo que se determino.  
+```{r}
+ if(DMg == 0.0000) {
+      print(paste(" El indice de diversidad de Margalef (DMg) de tus datos es : ", 
+                  DMg, "."))
+      print(" Tu muestra contiene solamente una especie.")
+    } else if (DMg <= 2.000) {
+      print(paste(" El indice de diversidad de Margalef (DMg) de tus datos es : ",
+                  DMg, "."))
+      paste(" Existe una baja diversidad dentro de tu muestra.")
+    } else if (DMg >= 2.0000 & DMg <= 5.0000) {
+      print(paste(" El indice de diversidad de Margalef (DMg) de tus datos es : ",
+                  DMg, "."))
+      print(" Existe una mediana diversidad dentro de tu muestra.")
+    } else if (DMg >= 5.0000) {
+      print(paste(" El indice de diversidad de Margalef (DMg) de tus datos es : ",
+                  DMg, "."))
+      print(" Existe una alta diversidad dentro de tu muestra.")
+    } else {
+      print("(ERROR 05): No puede calcularse el indice .  Datos incorrectos .")
+    }
+```
+
+Ahora repetimos lo mismo para eco2 y eco3
+```{r}
+   S <- length(eco2[ , 1])
+   N <- sum(eco2[ , 1])
+   DMga <- (S - 1)/log(N)
+ if(DMga == 0.0000) {
+      print(paste(" El indice de diversidad de Margalef (DMga) de tus datos es : ", 
+                  DMga, "."))
+      print(" Tu muestra contiene solamente una especie.")
+    } else if (DMga <= 2.000) {
+      print(paste(" El indice de diversidad de Margalef (DMga) de tus datos es : ",
+                  DMga, "."))
+      paste(" Existe una baja diversidad dentro de tu muestra.")
+    } else if (DMga >= 2.0000 & DMga <= 5.0000) {
+      print(paste(" El indice de diversidad de Margalef (DMga) de tus datos es : ",
+                  DMga, "."))
+      print(" Existe una mediana diversidad dentro de tu muestra.")
+    } else if (DMga >= 5.0000) {
+      print(paste(" El indice de diversidad de Margalef (DMga) de tus datos es : ",
+                  DMga, "."))
+      print(" Existe una alta diversidad dentro de tu muestra.")
+    } else {
+      print("(ERROR 05): No puede calcularse el indice .  Datos incorrectos .")
+    }
+   
+   S <- length(eco3[ , 1])
+   N <- sum(eco3[ , 1])
+   DMge <- (S - 1)/log(N)
+ if(DMge == 0.0000) {
+      print(paste(" El indice de diversidad de Margalef (DMge) de tus datos es : ", 
+                  DMge, "."))
+      print(" Tu muestra contiene solamente una especie.")
+    } else if (DMge <= 2.000) {
+      print(paste(" El indice de diversidad de Margalef (DMge) de tus datos es : ",
+                  DMge, "."))
+      paste(" Existe una baja diversidad dentro de tu muestra.")
+    } else if (DMge >= 2.0000 & DMge <= 5.0000) {
+      print(paste(" El indice de diversidad de Margalef (DMge) de tus datos es : ",
+                  DMge, "."))
+      print(" Existe una mediana diversidad dentro de tu muestra.")
+    } else if (DMge >= 5.0000) {
+      print(paste(" El indice de diversidad de Margalef (DMge) de tus datos es : ",
+                  DMge, "."))
+      print(" Existe una alta diversidad dentro de tu muestra.")
+    } else {
+      print("(ERROR 05): No puede calcularse el indice .  Datos incorrectos .")
+    }
+```
+
+DMg de eco1; DMga de eco2; y DMge de eco3
+```{r}
+DMg
+DMga
+DMge
+```
+
+#Indice de Jaccard para obtener diversidad beta 
+
+Para la formula se supone que debemos saber que especies hay en comun en ambas comunidades, sin embargo, con la funciÃ³n que nos arroja la intersecciÃ³n, no nos lo da
+```{r}
+intersect(eco1,eco2)
+```
+Por lo tanto solo nos enfocaremos en la longitud de ambas y sera como si el numero sea una especie, por ejemplo, el renglon 19 seria la misma especie en ambos, 20 igual y asi sucesivamente. 
+
+Obtenemos el numero mayor de cada base de datos correspondiente a los renglones, porque de esa forma obtenemos la cantidad de especies de esa base de datos. Para obtener el valor C nos basamos en el que tiene una menor cantidad de especies
+```{r}
+   A <- length(eco1[ , 1])
+   B <- length(eco2[ , 1])
+   M <- A
+```
+
+Ahora formulamos la ecuaciÃ³n de Jaccard,en donde a la cantidad de especies similares se divide entre el total de especies entre ambas zonas y se resta la cantidad que comparten. Y al ultimo el valor que obtenemos es el porcentaje de similitud entre ambas zonas. Entre menor sea implicaria que hay mayor diferencia entre ambas y que es mejor tratarlas de manera diferente, puesto que hay una diversidad distinta en ambas zonas y entre mas alta implicaria que incluso podrian ser una misma zona, o que a pesar de la distancia se ha mantenido una diversidad muy similar.
+```{r}
+Jac <- M /(A+B-M)
+Jac
+```
+
+Ahora obtendremos los valores al comparar eco1 con eco2 y eco2 con eco3
+```{r}
+   C <- length(eco3[ , 1])
+L <- B
+Jaca <- M /(A+C-M)
+Jace <- L /(B+C-L)
+```
+
+Repetimos lo mismo pero ahora tomando en cuenta las 3 al mismo tiempo, 
+```{r}
+   A <- length(eco1[ , 1])
+   B <- length(eco2[ , 1])
+   C <- length(eco3[ , 1])
+   M <- A
+```
+
+Hacemos la formula de nuevo, pero ahora agregamos a C en la parte de la divisiÃ³n
+```{r}
+Jaci <- M /(A+B+C-M)
+Jaci
+```
+
+Jac eco1 / eco2; Jaca eco1 / eco3 ; Jace eco2 / eco3 ;y Jaci eco1 / eco2 / eco3
+```{r}
+Jac
+Jaca
+Jace
+Jaci
+```
+
+
+#2. A partir de un objeto de tipo phyloseq generado de un anÃ¡lisis  de dentificaciÃ³n taxÃ³nomica  apartir del gen 16S ribosomal elabora un programa que
+
+
+1. Calcule distintas medidas de diversidad
+2. Elabore una grÃ¡fica de barras de abundancias por muestras.
+3. Elabore un anÃ¡lisis de reducciÃ³n de dimensionalidad
+4.  Muestre el microbioma core de las muestras
+5. (Opcional) genere redes de co-abundacia por muestra.
+
+Puedes usar cualquier objeto tipo pyhloseq ya se que lo hayas geenrado o que esten alojado en paquetes de R. En este caso sÃ­ puedes usar librerÃ­as especializadas
+
+Me fue imposible poder desarrollar esta parte, de primera manera por que voy muy lento y me falto tiempo, son las 11:49
+
+Pero basicamente abria que hacer lo que se realizo en la practica de PracticaMicrobioma2021.Rmd.
