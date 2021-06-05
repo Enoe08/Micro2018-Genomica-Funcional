@@ -446,8 +446,35 @@ Jaci
 4.  Muestre el microbioma core de las muestras
 5. (Opcional) genere redes de co-abundacia por muestra.
 
-Puedes usar cualquier objeto tipo pyhloseq ya se que lo hayas geenrado o que esten alojado en paquetes de R. En este caso sÃ­ puedes usar librerÃ­as especializadas
+library(dada2)
+library(phyloseq)
+library(ggplot2)
+load("C:/Users/Daniela/Downloads/ps.RData")
+ps# objeto tipo phyloseq que guardare como ps
+# Distintas medidas de diversidad 
+plot_richness(ps, x="Day", color="When") #  mediante una grafica: como x es el formato
+# que le quiero darle a las muestras, tambien le dio un formato para el color
+# Barra de abundancia
+top20 <- names(sort(taxa_sums(ps), decreasing=TRUE))[1:20]# le asignamos el nombre de las 
+# taxas de forma decreciente 
+ps.top20 <- transform_sample_counts(ps, function(OTU) OTU/sum(OTU))
+# transformacion de los conteos de la matrix de abundacias de las taxas, que sea de forma
+# individual
+ps.top20 <- prune_taxa(top20, ps.top20)
+# Remueves OTu's que no quieres, para que concuerden la taxa con los conteos transformados
+plot_bar(ps.top20, x="Day", fill="Family") + facet_wrap(~When, scales="free_x")
+# Grafica y le da formato a esos conteos transformados y que ya se les asigno una taxa
 
-Me fue imposible poder desarrollar esta parte, de primera manera por que voy muy lento y me falto tiempo, son las 11:49
+# Analisis de reduccion de la dimensionalidad 
+ord.nmds.bray <- ordinate(ps.top20, method="NMDS", distance="bray") 
+# Ordenamos las dimesiones de acuerdo metodo NMDS y la distancia entre muestras, 
+# tomando en cuenta los conteos transformados 
+ord.nmds.bray
+# La puntuacion del microbioma 
+library(microbiome)
+library(knitr)
+puntuacion<- core(ps.top20, detection = 0.1/100, prevalence = 80/100)
+puntuacion # Nos dice cuantas taxas y otus idenfitico 
+plot_core(ps.top20, detection = 0.1/100, prevalence = 80/100,plot.type = "heatmap") # Puntuacion de forma grafica
 
-Pero basicamente abria que hacer lo que se realizo en la practica de PracticaMicrobioma2021.Rmd.
+
