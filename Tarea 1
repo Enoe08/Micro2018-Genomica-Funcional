@@ -1,0 +1,309 @@
+---
+title: "Tarea 1"
+author: "Francisco Alfonso Perez Storms"
+date: "21/5/2021"
+output: html_document
+---
+
+Se activa la libreria que se usara para resolver los problemas
+```{r}
+library(igraph)
+```
+
+
+# 1. Ejercicio # Calcular propiedades
+ a) generar redes
+```{r}
+mmse <- make_empty_graph(n=10, directed= F) #Se genera un archivo en igraph, donde se tienen 10 nodos y no hay dirección
+V(mmse)$color = "coral" #Al nodo le asigno un color
+V(mmse)$shape = "sphere" #Le asigno una forma
+V(mmse)$name <- LETTERS[1:10] #Le asigno un nombre, que se genera por letras, segun el numero 
+class(mmse) #reviso la clase
+```
+Hago la primer figura, uso add.edges para indicar quien se relaciona con quien. Grafico el primer diseño
+```{r}
+fig1 <- add.edges(mmse, c(1,2, 1,3, 1,4, 1,5, 1,6, 1,7, 1,8, 1,9, 1,10)) 
+plot(fig1)  
+```
+SE REPITE EL MISMO PROCEDIMIENTO PARA LAS OTRAS 3 FIGURAS
+```{r}
+fig2 <- add.edges(mmse, c(1,2, 2,3, 3,4, 4,5, 5,6, 6,7, 7,8, 8,9, 9,10, 1,10))
+plot(fig2) # fig2 <- make_ring (10)
+```
+
+```{r}
+fig3 <- add.edges(mmse, c(3,5, 3,8, 3,7, 5,7, 5,8, 5,4, 5,6, 6,8, 6,4 , 6,2, 8,9, 8,4, 8,1, 7,10, 7,9, 7,2, 7,4, 1,10, 1,9 , 1,2, 10,9, 10,2))
+plot(fig3)
+```
+
+```{r}
+fig4 <- add.edges(mmse, c(9,2, 2,1, 1,8, 1,6, 1,5, 5,7, 5,10, 1,3, 3,4 ))
+plot(fig4)
+```
+
+ b) Cuales son los vecinos
+ 
+ Creo un vector en donde me generara una matriz de la red generada, segun la figura.
+ genero un hetmap, y asi podremos ver que nodos se relacionan con quien, con las otras variables eligo que con base el color se indique que nodos estan más conectados
+```{r}
+vecinos1 <- as.matrix(get.adjacency(fig1)) 
+heatmap(vecinos1, Rowv=NA, Colv="Rowv")```
+
+```{r}
+vecinos2 <- as.matrix(get.adjacency(fig2))
+heatmap(vecinos2, Rowv=NA, Colv="Rowv")
+```
+
+```{r}
+vecinos3 <- as.matrix(get.adjacency(fig3))
+heatmap(vecinos3, Rowv=NA, Colv="Rowv")
+```
+
+```{r}
+vecinos4 <- as.matrix(get.adjacency(fig4))
+heatmap(vecinos4, Rowv=NA, Colv="Rowv")
+```
+
+ c) Distribución de conectividad
+ 
+Se hace un histograma, en donde se vea con que frecuencia se puede tomar un nodo que tenga x cantidad de conecciones, y se elige un color del grafico
+```{r}
+hist(degree(fig1), col="seagreen2")
+```
+
+```{r}
+hist(degree(fig2), col="tomato2")
+```
+
+```{r}
+hist(degree(fig3), col="violetred2")
+```
+
+```{r}
+hist(degree(fig4), col="springgreen1")
+```
+
+ d) Conocer el nodo más conectado 
+
+Se hace un plot de la figura
+Le realiza la opcción de un buen diseño, y se pide que los nodos tenga un tamaño 
+```{r}
+plot(fig1, layout=layout_nicely, vertex.size=degree(fig1, V(fig1), "in")*5+9,
+     vertex.label.dist=0.5, edge.arrow.size=0.5)
+```
+
+Correspondiente a la cantidad de conecciones que tienen, se determina el tamaño que tendra segun las conecciones, se elige el grosor de las conecciones y el de las flechas si hubiera
+
+```{r}
+plot(fig2, layout=layout_nicely, vertex.size=degree(fig2, V(fig2), "in")*5+9,
+     vertex.label.dist=0.5, edge.arrow.size=0.5)
+```
+
+```{r}
+plot(fig3, layout=layout_nicely, vertex.size=degree(fig3, V(fig3), "in")*5+9,
+     vertex.label.dist=0.5, edge.arrow.size=0.5)
+```
+
+```{r}
+plot(fig4, layout=layout_nicely, vertex.size=degree(fig4, V(fig4), "in")*5+9,
+     vertex.label.dist=0.5, edge.arrow.size=0.5)
+```
+
+ e) Conocer el diametro
+
+Se obtiene el diametro de la red
+```{r}
+diameter(fig1)
+
+diameter(fig2)
+
+diameter(fig3)
+
+diameter(fig4)
+```
+
+ f) Matriz de distancias y heatmap
+ 
+Creo un vector en donde me generara una matriz de la red generada, segun la figura.
+Matriz de distancias
+Genero un hetmap, y asi podremos ver que nodos se relacionan con quien, con las otras variables eligo que con base el color se indique que nodos estan más conectados
+```{r}
+vecinos1 <- as.matrix(get.adjacency(fig1)) 
+vecinos1
+heatmap(vecinos1, Rowv=NA, Colv="Rowv")  
+```
+
+```{r}
+vecinos2 <- as.matrix(get.adjacency(fig2))
+vecinos2
+heatmap(vecinos2, Rowv=NA, Colv="Rowv")
+```
+
+```{r}
+vecinos3 <- as.matrix(get.adjacency(fig3))
+vecinos3
+heatmap(vecinos3, Rowv=NA, Colv="Rowv")
+```
+
+```{r}
+vecinos4 <- as.matrix(get.adjacency(fig4))
+vecinos4
+heatmap(vecinos4, Rowv=NA, Colv="Rowv")
+```
+
+
+# 2. Elaborar programa en R, ciclo for
+
+```{r}
+v <-sample(100) #Se generan 100 valores de forma aleatoria 
+for (i in 1:length(v)){ #Se hace un ciclo for donde i ira de 1 a la longitud de el vector v
+m <- seq(1,100,2) # hago un vector que sea una secuencia de 1 a 1000 de 2 en 2
+if (i == m){ #hago una condición donde, cuando i sea igual a un valor de m, se realice el sigueinte ciclo
+Cua <- i*i #que i se multiplique por i
+print(Cua) # me imprima el cuadrado
+} else { # y si no
+ print(i) #me imprima el valor i 
+}
+} #Problemas para que salga lo que espero, porque solo me salen los valores de 1 a 100. 
+```
+
+# 3. Matriz de amistades
+
+ a) cargar el archivo
+ 
+```{r}
+amigos<- read.csv("6to semestre/Genomica funcional/RedDeAmistadesGF2021Nombres - Hoja 1.csv") #Se genera un objeto al que se le asignara la data frame de amistades del grupo
+row.names(amigos)<- amigos[,1] # Se le asignan los nombres a la red, con base en base de datos
+amigos<-amigos [,-1] #Se elimina la primer columna 
+amigos <- as.matrix(amigos) #Se cambia de clase a matriz
+diag(amigos)<- rep(0,19) #Se elimina las interacciones en la diagonal, porque para el ejercicio no se requieres
+red_am <- graph_from_adjacency_matrix(amigos,mode="directed") #Se hace en formato de red la matriz de interacciones
+red_am #red de amigos #Se ven los valores de la red
+plot(red_am) #Se grafica la red
+```
+
+ b) Vector con el nombre de a los que considero mis amigos. 
+ 
+Con base en el ejercico que presento Ana
+```{r}
+mis_amigos <- amigos["FRANCISCO",] #Genero un nuevo objeto en el que solo este mis valores correspondientes a mi renglon
+Mamigos <- c() #Genero un vector vacio
+k=1 #Asigno 1 a mi variable k
+f=1 #Asigno el valor 1 a mi fariable f
+while (k<= length(mis_amigos)){ #Gereno un ciclo while, en el que K sera menor o igual a la longitud de mi vector de amigos
+        if(mis_amigos[x=k] == 1){ #hago un ciclo condicional, para que cuando x sea igual a k y eso sea igual a 1
+                Mamigos [x=f] <- k # k se agrega al vector vacio en la posición f
+                print(paste(Mamigos[x=f])) #se imprime el valor recien agregado
+                f=f+1 # f toma el valor mas 1 para repetir el ciclo
+        }
+        k=k+1 #k toma el valor + 1 para repetir el ciclo 
+}
+conexiones_Mamigos <- degree (red_am, mode = "out") # hago un nuevo objeto, donde me señale el degre de la red de amigos, en modo de los ese nodo interactua
+as.data.frame(conexiones_Mamigos) # se hace en formato de base de datos el objeto anterior
+as.vector(Mamigos) # se hace en formato de vector el objeto creado y que se lleno a partir de ciclo while
+
+Misamigos <- conexiones_Mamigos[Mamigos] #Se hace un objeto en el que se junte el vector con la base de datos
+Misamigos #En forma de vector
+Mis_Amigos <- as.data.frame(Misamigos) # se pasa a formato de base de datos
+Mis_Amigos # En forma de data frame
+```
+Problema porque no sé como quitar el valor de Degree y me arroje solo los nombres
+
+ c) Vector de los que se consideran mis amigos
+Se repite lo anterior, con la diferencia en el nombre de objetos y/o vectores y en que al inicio, en lugar de pedir la columna, se obtendran los valores de mi renglon
+
+```{r}
+soy_amigo <- amigos[,"FRANCISCO"]
+Samigo <- c()
+k=1
+f=1
+while (k<= length(soy_amigo)){
+        if(soy_amigo[x=k] == 1){
+                Samigo [x=f] <- k
+                print(paste(Samigo[x=f]))
+                f=f+1
+        }
+        k=k+1
+}
+conexiones_Samigo <- degree (red_am, mode = "out")
+as.data.frame(conexiones_Samigo)
+as.vector(Samigo)
+```
+
+```{r}
+BFF <- conexiones_Samigo[Samigo]
+BFF #En forma de vector
+BFFa <- as.data.frame(BFF)
+BFFa # En forma de data frame
+```
+Problema porque no sé como quitar el valor de Degree y me arroje solo los nombres
+
+d) Imprima el texto: "Hola amigo1", en donde amigo1 es el nombre de cada uno de tus amigos.
+
+```{r}
+for (i in Mis_Amigos) {
+        print(paste(" Hola,", i)) #Se hace un ciclo for, donde i es los valores en mi base de datos
+        #pido que me implima Hola y i que si estuviera bien me arrojaria el nombre y no el valor de degree
+}#Problema porque no toma los nombres
+```
+
+
+ e) Calcule el promedio de los amigos de todos
+
+```{r}
+red_am <- graph_from_adjacency_matrix(amigos,mode="directed") #genero la red de amistades, y pido que considere la dirección
+sort(degree(red_am,mode="out"),decreasing = T) #De los que uno considera, pido que me de el degree y me los acomode en orde de mayor a menor
+sort(degree(red_am,mode="in"),decreasing = T) #Los que a uno lo consideran, pido que me de el degree y los acomode de mayor a menor
+mean (degree(red_am, mode = "in")) # promedio de los que consideramos nuestros amigos
+mean (degree(red_am, mode = "out")) #promedio de los que nos consideran sus amigos , en efecto ambos son iguales
+```
+
+ f ) Encuentra tu coeficiente de clusterizacin.
+
+```{r}
+transitivity(red_am) # obtengo el coeficiente de la red
+transitivity(red_am, vids = "FRANCISCO", type = "local") #Obtengo mi coeficiente
+```
+
+# 4. Utiliza la red del club de Karate de Zachary
+
+```{r}
+library(igraphdata) #cargo la libreria
+data() #observo como se llama la base de datos de mi interes
+data (karate)                     #cargo la base de datos
+```
+
+ a) Calcula los nodos mas conectados.
+
+```{r}
+sort(degree(karate,mode="in"),decreasing = T) # La dirección no importa , pido que me arroge el degree de todos y que me los acomode de mayor a menor
+```
+
+ b) Calcula el dimetro
+
+```{r}
+diameter(karate) #obtengo el diametro
+```
+
+
+ c) Encuentra la distribucion de conectividades.
+
+```{r}
+hist(degree(karate), col="springgreen1") #Pido que me de un histograma de la base de datos, y pongo un color
+```
+
+
+ d) Genera la matriz de adyacencia.
+
+```{r}
+red_karate <- as.matrix(get.adjacency(karate)) #Hago en formato matriz, la base de datos en formato igraph
+red_karate #imprimo matriz de adyacencia
+heatmap(red_karate, Rowv=NA, Colv="Rowv") #Genero un heatmap para una mayor apreciación 
+```
+
+ e) Dibuja la red con los nodos proporcionales al degree de cada uno de ellos
+
+```{r}
+plot(karate, layout=layout_nicely, vertex.size=degree(karate, V(karate), "in")*1+12)
+```
+Hago un plot en donde selecciono la red, pido que sea un diseño bonito, y que los nodos tenga un tamaño acorde a el degree, y luego indico que tamañp tendran segun el degree
