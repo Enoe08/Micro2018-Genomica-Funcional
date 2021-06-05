@@ -1,0 +1,57 @@
+# 1.(0.2) A partir de 20 secuencias de AA del virus SARS-CoV-2 (5 por cada continente (de preferencia de países distintos y geograficamente lejanos): Asia, Europa,América, Africa o Oceanía) escribe un programa en R que genere los siguiente:
+- Un alineamiento múltiple (con cualquier algoritmo)
+- Una matriz de distancia
+- Una red pesada a partir de la matriz de distancia
+- Al menos tres métodos de clusterización de la red.
+- Discutir la red y la clusterización , origen de las cepas
+-Exportar y generar la red en Cytoscape (escribir código y anexar pdf de la red generada)
+- Opcional: genera un árbol filogenético
+Extra (+.05) Usa el comando file.choose() para pedirle al usuario que busque y suba el archivo FASTA
+concatenado. Escribe una función para que se analien tantos archivos como el usuario quiera (+0.1).
+
+#2. (0.05 ) A partir del archivo FASTA anterior genera un programa en R que lea todas las secuencias y haga una gráfica del procentaje de GC de cada secuencias vs el porcentaje de G segudio de C.
+
+#3. (0.05)Exporta y genera las redes de amigas del curso y de perfiles de gustos de series de TV a Cytoscape, genera una representación adecuada y clusterizalas. Manda el código y las redes clusterizadas.
+De los siguientes problemas entrega una versión sin utilizar librerías especializadas en R y otra con librerías especilizadas. Puedes entregar sólo una versión y el valor de cada uno de ellos está indicado en los paréntesis. El primer número corresponde a la versión sin librerías especializadas y el segundo, a librerías especializadas. Todos son problemas de Rosalind, los transcribo acá ya que el sitio estuvo un buen rato caído.
+
+#4.(0.15 + 0.05) Problema DNA2RNA
+An RNA string is a string formed from the alphabet containing ‘A’, ‘C’, ‘G’, and ‘U’.
+Given a DNA string t corresponding to a coding strand, its transcribed RNA string u is formed by replacing all occurrences of ‘T’ in t with ‘U’ in u.
+Given: A DNA string t having length at most 1000 nt.
+Return: The transcribed RNA string of t.
+Sample Dataset
+GATGGAACTTGACTACGTAAATT
+Sample Output
+GAUGGAACUUGACUACGUAAAUU
+
+#5. (0.25 +0.05) Problema Count nucleotides
+A string is simply an ordered collection of symbols selected from some alphabet and formed into a word; the length of a string is the number of symbols that it contains.
+An example of a length 21 DNA string (whose alphabet contains the symbols ‘A’, ‘C’, ‘G’, and ‘T’) is
+“ATGCTTCAGAAAGGTCTTACG.”
+Given: A DNA string s of length at most 1000 nt.
+Return: Four integers (separated by spaces) counting the respective number of times that the
+symbols ‘A’, ‘C’, ‘G’, and ‘T’ occur in s.
+Sample Dataset
+AGCTTTTCATTCTGACTGCAACGGGCAATATGTCTCTGTGTGGATTAAAAAAAGAGTGTCTGATAGCAGC
+Sample Output
+20 12 17 21
+
+#6. (0.15+0.05) Problema (acá) Calculating Protein Mass
+In a weighted alphabet, every symbol is assigned a positive real number called a weight. A string formed from a weighted alphabet is called a weighted string, and its weight is equal to the sum of the weights of its symbols.
+The standard weight assigned to each member of the 20-symbol amino acid alphabet is the monoisotopic mass of the corresponding amino acid.
+Given: A protein string P of length at most 1000 aa.
+Return: The total weight of P. Consult the monoisotopic mass table.
+Sample Dataset
+SKADYEK
+Sample Output
+821.392
+
+#7. (0.20+0.05) Problema (acá) The Genetic Code
+The 20 commonly occurring amino acids are abbreviated by using 20 letters from the English alphabet (all letters except for B, J, O, U, X, and Z). Protein strings are constructed from these 20 symbols. Henceforth, the term genetic string will incorporate protein strings along with DNA strings and RNA strings.
+The RNA codon table dictates the details regarding the encoding of specific codons into the amino acid alphabet.
+Given: An RNA string s corresponding to a strand of mRNA (of length at most 10 kbp).
+Return: The protein string encoded by s.
+Sample Dataset
+AUGGCCAUGGCGCCCAGAACUGAGAUCAAUAGUACCCGUAUUAACGGGUGA
+Sample Output
+MAMAPRTEINSTRING
