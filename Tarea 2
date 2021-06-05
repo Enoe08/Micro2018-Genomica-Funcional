@@ -1,0 +1,305 @@
+---
+title: "Tarea 2"
+author: "Francisco Alfonso Perez Storms"
+date: "21/5/2021"
+output: html_document
+---
+
+
+# 1. Disena una red booleana con 4 elementos y 8 relaciones regulatorias con al menos 4 represiones. Utiliza todos los operadores booleanos en tus reglas.
+1. Escribe las reglas que gobiernan el sistema.
+2. Escribe las tablas de verdad para cada elemento (4).
+3. Describe todas las trayectorias (24 = 16).
+4. Encuentra, grafica y explica los atractores que encontraste.
+5. Realiza el procedimiento anterior ahora utilizando BoolNet.
+6. (EXTRA) Exporta tu red en Cytoscape y manda tu red en un archivo pdf con alguna personalizacin.
+
+Primero genero las reglas de mi red booleana targets, factors
+A, A | !C
+B, A & C
+C, B | !A
+D,!B & !C
+
+Ahora realizo las tablas de verdad
+ A | !C = A
+ T | T = T
+ T | F = T
+ F | T = T
+ F | F = F
+
+ A & C = B
+ T & T = T
+ T & F = F
+ F & T = F
+ F & F = F
+
+ B | !A = C
+ T | T = T
+ T | F = T
+ F | T = T
+ F | F = F
+
+!B & !C = D
+ T & T = T
+ T & F = F
+ F & T = F
+ F & F = F
+
+Ahora realizo las trayectorias, y marco con una letra los atractores
+ 0,0,0,0 ; 1,0,1,1 ; 1,1,0,0 ; 1,0,1,0 ; 1,1,0,0 A
+ 1,0,0,0 ; 1,0,0,1 ; 1,0,0,1 B
+ 0,1,0,0 ; 1,0,1,0 ; 1,1,0,0 ; 1,0,1,0 A
+ 0,0,1,0 ; 0,0,1,0 C
+ 0,0,0,1 ; 1,0,1,1 ; 1,1,0,0 ; 1,0,1,0 ; 1,1,0,0 A
+ 1,1,0,0 ; 1,0,1,0 ; 1,1,0,0 A
+ 1,0,1,0 ; 1,1,0,0 ; 1,0,1,0 A
+ 1,0,0,1 ; 1,0,0,1 B
+ 0,1,1,0 ; 0,0,1,0 ; 0,0,1,0 C
+ 0,1,0,1 ; 1,0,1,0 ; 1,1,0,0 ; 1,0,1,0 A
+ 0,0,1,1 ; 0,0,1,0 ; 0,0,1,0 C
+ 1,1,1,0 ; 1,1,1,0 D
+ 1,1,0,1 ; 1,0,1,0 ; 1,1,0,0 ; 1,0,1,0 A
+ 1,0,1,1 ; 1,1,0,0 ; 1,0,1,0 ; 1,1,0,0 A
+ 0,1,1,1 ; 0,0,1,0 ; 0,0,1,0 C
+ 1,1,1,1 ; 1,1,1,0 ; 1,1,1,0 D
+
+ A es un atractor ciclico de dos estados, y tiene un 50% de probabilidades darse a lugar, segun con que sé inicie
+ B es un atractor, y tiene un 12.5% de probabilidad
+ C es un atractor, y tiene un 25% de probabilidad
+ D es un atractor y tiene un 12.5% de probabilidad
+
+Se corren las librerias a usar. 
+```{r}
+library(igraph)
+library(BoolNet)
+setwd("c:/Users/gbsto/Documents/6to semestre/Genomica funcional/BoolNet/") #Me muevo a la carpeta que me interesa guardar mi red
+sink("T2_ejercicio_1_.txt") #Asigno un nombre y luego empiezo con la sintaxis o reglas de la red
+cat("targets, factors\n")
+cat("A, A | !C\n")
+cat("B, A & C\n")
+cat("C, B | !A\n")
+cat("D,!B & !C\n")
+sink()
+T2_ejercicio_1_ <-loadNetwork ("T2_ejercicio_1_.txt") #Subo la red que acabo de haer a R
+plotNetworkWiring(T2_ejercicio_1_) #Mapeo la red
+atract <- getAttractors(T2_ejercicio_1_) # Obtengo los atractores de la red
+plotAttractors(atract) #Pido que se me grafiquen los atractores
+```
+Despues de generar de este modo, obtuve los mismos resultados. y claro que es mucho más eficiente. 
+
+#2. A partir de la red de se analizacion mostrada en al figura 1
+ a) Elabora una representacion verbal de la red
+ b) Elabora una tabla de posibles reglas de la red
+ c) Encuentra y discute biologicamente el significado de los atractores
+
+ Cuando CIS se prende a Ca, 
+ cuando Ca se prende, prende a NOS, CaATP, AnionEM, PLC, KEV, Depolar, e inhibe a HATP
+ Cuando Nos se prende activa a GC y a ADPRc
+ Cuando GC se prende, activa a cGMP
+ Cuando cGMP prende, activa a CIS
+ Cuando ADPRc prende, activa a cADPR
+ Cuando cAFPR prende, activa a CIS
+ Cuando PLC prende, activa a InsP3
+ Cuando InsP3 prende, activa a CIS
+ Cuando Ca ATP prende, inhibe a Ca
+ Cuando KEV prende, activa a Depolar
+ Cuando Depolar se prende, Activa a KAP, KOUT e inhibe a CalM
+ Cuando se activa AnionEM, se activa Closure y Depolar
+ Cuando Closure se activa, NO SUCEDE NADA
+ Cuando KOUT se activa, Activa a Closure e inhibe a Depolar
+ Cuando KAP se activa, Activ a Closure
+ Cuando CalM se activa, Activa a Ca
+ Cuando HATP se activa, inhibe a Depolar
+ (Usa BoolNet)
+ 
+```{r}
+setwd("c:/Users/gbsto/Documents/6to semestre/Genomica funcional/BoolNet/") #me muevo a mi carpeta de interes
+sink("T2_ejercicio_2_.txt") #Guardo el nombre en que se guardara mi red y genero las instrucciones # tabla de reglas de la red
+cat("targets, factors\n")
+cat("CIS, cGMP | cADPR | InsP3\n")
+cat("cGMP, GC\n")
+cat("GC, NO\n")
+cat("NO,NOS\n")
+cat("NOS, Ca\n")
+cat("Ca, (CIS | CalM) & !CaATP\n")
+cat("cADPR, ADPRc\n")
+cat("ADPRc,NO\n")
+cat("InsP3, PLC\n")
+cat("PLC, Ca\n")
+cat("CaATP, Ca\n")
+cat("CalM, !Depolar\n")
+cat("KEV, Ca\n")
+cat("HATP, !Ca\n")
+cat("AnionEM, Ca\n")
+cat("Closure, AnionEM | KOUT | KAP\n")
+cat("KOUT, Depolar\n")
+cat("KAP, Depolar\n")
+cat("Depolar, (KEV | Ca | AnionEM) & (!HATP | !KOUT)\n")
+sink()
+T2_ejercicio_2_ <-loadNetwork ("T2_ejercicio_2_.txt") #cargo la red
+plotNetworkWiring(T2_ejercicio_2_) #Mapeo la red
+atract1 <- getAttractors(T2_ejercicio_2_) #obtengo los atractores
+plotAttractors(atract1) #Pido que se grafiquen los atractores
+```
+
+De manera biologica se me hace super eficiente, que sin importar cual séa el inicio, siempre terminara en ese estadio ciclico de 4 estados, y considero que es muy interesante y que refleja un ambiente dinamico y bastante robusto, para la cantidad de componentes que interactuan. Auque me produce curiosidad,el porque quieren prender a Closure si no parece regular nada en la red, no le veo la importancia.
+
+# 3. La red mostrada en la figura 2 es una red de regulaci ??on gen ??etica de la gastrulacion de Drosophila melanogaster. Esta red est descrita en el paper
+1. Elabora un conjunto de reglas booleanas para esta red.
+2. Encuentra los atractores y las cuencas de atracci??on
+3. ¿Que pasa si las entradas Dorsal y Mlck siempre estan activas(o inactivas)?
+
+```{r}
+setwd("c:/Users/gbsto/Documents/6to semestre/Genomica funcional/BoolNet/") #me muevo a mi carpeta de interes
+sink("T2_ejercicio_3_.txt") #Guardo el nombre en que se guardara mi red y genero las instrucciones
+cat("targets, factors\n")
+cat("D, D & (!Twi & !Sna)\n")
+cat("Twi, D | FOG | Twi\n")
+cat("Sna, D | Twi\n")
+cat("FOG, Sna | Twi\n")
+cat("FOGR, FOG\n")
+cat("B, Sna\n")
+cat("A, A | Twi\n")
+cat("Cta, FOGR\n")
+cat("Csk, Cta\n")
+cat("GDI, !Moe\n")
+cat("GEF, Cta | A\n")
+cat("Src, !Csk\n")
+cat("Moe, (Moe | Rock) & !Mlcp\n")
+cat("Rho, GEF & (!GDI & !GAP)\n")
+cat("GAP, Src\n")
+cat("Actin, Moe | Mlc | B\n")
+cat("Mlcp, !Rock\n")
+cat("Rock, Rho\n")
+cat("Mlc, (Rock | Mlck) & !Mlcp\n")
+cat("Mlck, Mlck & !Mlc\n")
+sink()
+T2_ejercicio_3_ <-loadNetwork ("T2_ejercicio_3_.txt") #cargo la red
+```
+
+Cuando no le pongo entrada a D y a Mlck, se me genera un gen llamado NA, que enciende a Mlck y a D y a NA, para evitar eso, colocare la regla de que regla de que, D se puede prender a sí mismo, y para que no este siempre prendido, que se a paga en cuanto el gen que esta debajo de el se apaga, de esa manera, cuando se prenda, no quedara siempre prendido. Aunque no sabemos que o como suceda su regulación puesto que no esta descrita en el diagrama. 
+```{r}
+plotNetworkWiring(T2_ejercicio_3_) #Mapeo la red
+atract2 <- getAttractors(T2_ejercicio_3_) #obtengo los atractores
+plotAttractors(atract2) #Pido que se grafiquen los atractores
+```
+Lo que puedo decir con respecto a los atractores, es que hay 7 atractores de un estado y 3 de 5 estados. Me es imposible conocer los porcentajes, porque cuando hago el plot, un recuadro de activo o inactivo me bloquea la visión para poder ver los porcentajes.
+
+```{r}
+atract2
+```
+Asi puedo ver cuantos inicios, dan lugar a x estadio 
+ 1 por 31984 estados; 2 por 825968 estados; 3 por 32096 estados; 4 192 estados; 5 784 estados; 6 21840 estados 7 627 estados; 
+ AHORA LOS CICLICOS DE 5 ESTADOS
+ 8 107520 estados; 9 22592 estados; Y 10 4928 estados
+
+Me parece interesante, como en este caso no hay un estado fijo al que se tienda, esto puede implicar que segun la situación de la célula, se va a dirigir un estado, que de algun modo veo que tiene que ver con Ca, como para la obtención del catión, entonces, puede que tenga mucho sentido, ya que en la gastrulación, como es un evento unico en el tiempo, pero a la vez suele requerir muchos pasos distintos, es que se tienen varios estados finales para poder dar a lugar ciertas estancias del desarrollo. 
+
+Para generar el supuesto de que siempre esten activas o inactivas, he replicado la red pero en el apartado de D o Mlck e colocado que todos los genes lo activan o inhiben, segun la condición. 
+
+
+sE ACTIVAN
+```{r}
+setwd("c:/Users/gbsto/Documents/6to semestre/Genomica funcional/BoolNet/") #me muevo a mi carpeta de interes
+sink("T2_ejercicio_3_2.txt") #Guardo el nombre en que se guardara mi red y genero las instrucciones
+cat("targets, factors\n")
+cat("D, D | Twi | Sna | FOG | FOGR | B | A | Cta | Csk | GDI | GEF | Src | Moe | Rho | GAP | Actin | Mlcp | Rock | Mlc | Mlck\n")
+cat("Twi, D | FOG | Twi\n")
+cat("Sna, D | Twi\n")
+cat("FOG, Sna | Twi\n")
+cat("FOGR, FOG\n")
+cat("B, Sna\n")
+cat("A, A | Twi\n")
+cat("Cta, FOGR\n")
+cat("Csk, Cta\n")
+cat("GDI, !Moe\n")
+cat("GEF, Cta | A\n")
+cat("Src, !Csk\n")
+cat("Moe, (Moe | Rock) & !Mlcp\n")
+cat("Rho, GEF & (!GDI & !GAP)\n")
+cat("GAP, Src\n")
+cat("Actin, Moe | Mlc | B\n")
+cat("Mlcp, !Rock\n")
+cat("Rock, Rho\n")
+cat("Mlc, (Rock | Mlck) & !Mlcp\n")
+cat("Mlck, D | Twi | Sna | FOG | FOGR | B | A | Cta | Csk | GDI | GEF | Src | Moe | Rho | GAP | Actin | Mlcp | Rock | Mlc | Mlck\n")
+sink()
+T2_ejercicio_3_2 <-loadNetwork ("T2_ejercicio_3_2.txt") #cargo la red 
+```
+
+```{r}
+plotNetworkWiring(T2_ejercicio_3_2) #Mapeo la red
+atract3 <- getAttractors(T2_ejercicio_3_2) #obtengo los atractores
+plotAttractors(atract3) #Pido que se grafiquen los atractores
+```
+
+ De esta manera se reduce la cantidad de 1 estado atractor, de 7 a solo 2. 
+ Igual no me deja ver los procentajes, pero se puede correr solo atract ver cuantos estados dan a lugar a esos atractores
+ SE INHIBEN
+```{r}
+setwd("c:/Users/gbsto/Documents/6to semestre/Genomica funcional/BoolNet/") #me muevo a mi carpeta de interes
+sink("T2_ejercicio_3_3.txt") #Guardo el nombre en que se guardara mi red y genero las instrucciones
+cat("targets, factors\n")
+cat("D, !D | !Twi | !Sna | !FOG | !FOGR | !B | !A | !Cta | !Csk | !GDI | !GEF | !Src | !Moe | !Rho | !GAP | !Actin | !Mlcp | !Rock | !Mlc | !Mlck\n")
+cat("Twi, D | FOG | Twi\n")
+cat("Sna, D | Twi\n")
+cat("FOG, Sna | Twi\n")
+cat("FOGR, FOG\n")
+cat("B, Sna\n")
+cat("A, A | Twi\n")
+cat("Cta, FOGR\n")
+cat("Csk, Cta\n")
+cat("GDI, !Moe\n")
+cat("GEF, Cta | A\n")
+cat("Src, !Csk\n")
+cat("Moe, (Moe | Rock) & !Mlcp\n")
+cat("Rho, GEF & (!GDI & !GAP)\n")
+cat("GAP, Src\n")
+cat("Actin, Moe | Mlc | B\n")
+cat("Mlcp, !Rock\n")
+cat("Rock, Rho\n")
+cat("Mlc, (Rock | Mlck) & !Mlcp\n")
+cat("Mlck, !D | !Twi | !Sna | !FOG | !FOGR | !B | !A | !Cta | !Csk | !GDI | !GEF | !Src | !Moe | !Rho | !GAP | !Actin | !Mlcp | !Rock | !Mlc | !Mlck\n")
+sink()
+T2_ejercicio_3_3 <-loadNetwork ("T2_ejercicio_3_3.txt")
+```
+
+```{r}
+plotNetworkWiring(T2_ejercicio_3_3) #Mapeo la red
+atract4 <- getAttractors(T2_ejercicio_3_3) #obtengo los atractores
+plotAttractors(atract4) #Pido que se grafiquen los atractores
+```
+
+Por extraño que paresca, tiende a la misma cantidad de atractores de un estado y ciclicos que cuando estan activados todo el tiempo. Quizas no es muy raro, por el hecho de que al final tienden solo activar un gen por lo tanto, quizas no son tan importantes, y es posible que la que consideraba como original, en efecto este mal, y por eso presente una mayor cantidad de estados, aunque de igual manera, son varios que pueden estan inmiscuidas en el desarrollo de la mosca. 
+
+# 4. Elabora un program comentado en R que calcule los eigenvalores de una matriz arbitraria de 2×2. Tu programa debe incluir el codigo encapsulado en una funcion, debe especificar si los eigenvalores son reales o complejos.
+Nota: se que existe una funci ??on que calcula los eigenvalores en R pero no consiste en eso el ejercicio mas bien en generar el codigo desde cero, es decir, no , repito, no, uses esa funcion.
+
+```{r}
+mtr1 <-matrix(c(3,2,4,5), nrow=2,ncol=2)
+mtr1
+```
+
+                                                                      
+#5. Selecciona algun experimento que te parezca interesante de micro-arreglos de expresion via la herramienta Geo2R de NCBI. Realiza un analisis de expresion diferencial entre al menos dos grupos experimentales que se reporten en el articulo correspondiente. Genera el codigo para realizar todos los analisis como las graficas y almacenalo en tu cuenta de Github.
+Comenta el codigo de cade seccion para que ne quede claro que entiendes cada paso para inferir la red. Manda la liga de ese codigo. Genera las tablas en formato csv de genes diferencialmente expresados con las siguientes
+condiciones: logFC de al menos 2 y p-value inferior a 0.1.
+ Entre a la pagina https://www.ncbi.nlm.nih.gov/geo/geo2r/?acc=GSE108156
+ trate de poner barios GSE, pero me salia invalido, y no sé porque, intente con 6 
+ https://www.ncbi.nlm.nih.gov/gds?LinkName=gds_gds_similar&from_uid=200132236
+ Pero ninguno me dejo dar lugar al analicis, incluso para el que se recomendaba usar Geo2R,
+ No me dejaba, decia que no habia datos para el analisis. 
+
+#6. Elabora un programa en R que, mediante una funcion que le pida a un usuario un user name y le pida un password que ingrese dos veces y verifque que es el mismo password. La informacion debe guardarse de forma acumulativa en un data.frame para cada nuevo registro. Despues de ingresar esos datos con otra funcion pida esos datos y corrobore que tanto el user name como el password son correcto
+
+
+
+#7. Utiliza el tutorial de WGCNA para generar una red de co expresion de las que se encuentran en dicho recurso web. Comenta el codigo de cada seccion para que me quede claro que entiendes cada paso para inferir la red. Exporta un modulo de la red a Cytoscape o a igraph y mejora su representacion visual.
+
+
+
+#8. (EXTRA) Considera que tienes como entrada una tabla con dos columnas,la primera un numero y el otro un nombre. Elabora una funcion que genere un sorteo que seleccione un numero de los de la tabla y genere un mensaje festajando a la o el ganadora.
+
+```{r}
+sample(1,10,1)
+```
